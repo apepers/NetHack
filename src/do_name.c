@@ -119,7 +119,11 @@ const char *goal;
 	    }
 	    cx += dx;
 	    cy += dy;
-	    goto nxtc;
+		if (force) {
+		goto nxtc;
+		}
+		result = 1;
+	    goto endc;
 	}
 
 	if(c == '?'){
@@ -181,6 +185,7 @@ const char *goal;
 	curs(WIN_MAP,cx,cy);
 	flush_screen(0);
     }
+	endc:	;
 #ifdef MAC
     lock_mouse_cursor(FALSE);
 #endif
