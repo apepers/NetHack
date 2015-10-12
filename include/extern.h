@@ -212,6 +212,9 @@ E void NDECL(do_mapping);
 #ifdef LISTMONS
 E int NDECL(dolistmons);
 #endif
+#ifdef TESTCOM
+E int NDECL(dotestcom);
+#endif
 E void NDECL(do_vicinity_map);
 E void FDECL(cvt_sdoor_to_door, (struct rm *));
 #ifdef USE_TRAMPOLI

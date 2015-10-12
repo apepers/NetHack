@@ -19,6 +19,20 @@ STATIC_DCL boolean FDECL(help_menu, (int *));
 extern void NDECL(port_help);
 #endif
 
+#ifdef TESTCOM
+int 
+dotestcom() 
+{
+	char	out_str[BUFSZ];
+	winid win = create_nhwindow(NHW_TEXT);
+	Sprintf(out_str, "%s", "This is a really long string that really should end up being on multiple lines so we'll see what happens since hopefully it'll automatically break it onto new lines but I mean no promises I might even hit buffer overflow");
+	putstr(win, 0, out_str);
+	display_nhwindow(win, TRUE);
+	destroy_nhwindow(win);
+	return 0;
+}
+#endif
+
 /* Returns "true" for characters that could represent a monster's stomach. */
 STATIC_OVL boolean
 is_swallow_sym(c)
