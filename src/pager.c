@@ -488,6 +488,7 @@ do_look(quick)
 
     if (quick) {
 	from_screen = TRUE;	/* yes, we want to use the cursor */
+	pline("Move the cursor through tiles you wish to view.");
     } else {
 	i = ynq("Specify unknown object by cursor?");
 	if (i == 'q') return 0;
@@ -531,7 +532,9 @@ do_look(quick)
 		pline("Please move the cursor to %s.",
 		       what_is_an_unknown_object);
 	    else
+		if (!quick) {
 		pline("Pick an object.");
+		}
 
 	    ans = getpos(&cc, quick, what_is_an_unknown_object);
 	    if (ans < 0 || cc.x < 0) {
@@ -571,7 +574,7 @@ do_look(quick)
 	 * Check all the possibilities, saving all explanations in a buffer.
 	 * When all have been checked then the string is printed.
 	 */
-
+	if (!quick) {
 	/* Check for monsters */
 	for (i = 0; i < MAXMCLASSES; i++) {
 	    if (sym == (from_screen ? monsyms[i] : def_monsyms[i]) &&
@@ -716,6 +719,10 @@ do_look(quick)
 		found += append_str(out_str, "boulder");
 	    }
 	}
+	} else {
+		Sprintf(out_str, "%c ", sym);
+		need_to_look = TRUE;
+	}
 	
 	/*
 	 * If we are looking at the screen, follow multiple possibilities or
@@ -754,12 +761,11 @@ do_look(quick)
 	    pline("I've never heard of such things.");
 	}
 
-    } while (from_screen && !quick && ans != LOOK_ONCE);
+    } while (from_screen && ans != LOOK_ONCE);
 
     flags.verbose = save_verbose;
     return 0;
 }
-
 
 int
 dowhatis()

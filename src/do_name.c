@@ -86,6 +86,10 @@ const char *goal;
 	if ((cp = index(pick_chars, c)) != 0) {
 	    /* '.' => 0, ',' => 1, ';' => 2, ':' => 3 */
 	    result = cp - pick_chars;
+		/* in quick mode, treat all as exit characters */
+		if (force) {
+			result = 2; 
+		}
 	    break;
 	}
 	for (i = 0; i < 8; i++) {
@@ -119,7 +123,7 @@ const char *goal;
 	    }
 	    cx += dx;
 	    cy += dy;
-		if (force) {
+		if (!force) {
 		goto nxtc;
 		}
 		result = 1;
@@ -170,7 +174,6 @@ const char *goal;
 		    msg_given = TRUE;
 		} /* k => matching */
 	    } /* !quitchars */
-	    if (force) goto nxtc;
 	    pline("Done.");
 	    msg_given = FALSE;	/* suppress clear */
 	    cx = -1;
