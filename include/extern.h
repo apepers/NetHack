@@ -215,6 +215,9 @@ E int NDECL(dolistmons);
 #ifdef TESTCOM
 E int NDECL(dotestcom);
 #endif
+#ifdef DIRLOOK
+E int NDECL(dodirlook);
+#endif
 E void NDECL(do_vicinity_map);
 E void FDECL(cvt_sdoor_to_door, (struct rm *));
 #ifdef USE_TRAMPOLI

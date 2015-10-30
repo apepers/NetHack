@@ -20,6 +20,47 @@ STATIC_DCL void FDECL(show_map_spot, (int,int));
 STATIC_PTR void FDECL(findone,(int,int,genericptr_t));
 STATIC_PTR void FDECL(openone,(int,int,genericptr_t));
 
+#ifdef DIRLOOK
+int dodirlook()
+{
+	int range,ddx,ddy;
+	range = 0;
+	ddx = 1;
+	ddy = 0;
+	bhitpos.x = u.ux;
+	bhitpos.y = u.uy;
+	while (TRUE) {
+		range++;
+		int x,y;
+		bhitpos.x += ddx;
+		bhitpos.y += ddy;
+		x = bhitpos.x;
+		y = bhitpos.y;
+		if (!isok(x, y)) {
+			break;
+			// When you're off the map?
+		}
+		struct rm *tmpr = &levl[x][y];
+		if (tmpr->seenv == 0) {
+			break;
+		} 
+		if (IS_ROCK(tmpr->typ)) {
+			break;
+		} else if (IS_DOOR(tmpr->typ)) {
+			if (closed_door(x,y)) {
+				break;
+			}
+		}
+		int glyph = glyph_at(x,y);
+		if (glyph == NO_GLYPH) {
+			break;
+		}
+	}
+	pline("Edge is %d tiles away.", range);
+	return 0;	
+}
+#endif
+
 #ifdef LISTMONS
 #define LM_PLINELIM 4 /* # of uniquely identifiable monsters needed for
 		         showing in a separate window. */

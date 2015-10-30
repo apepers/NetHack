@@ -103,6 +103,9 @@ extern int NDECL(dolistmons); /**/
 # ifdef TESTCOM
 extern int NDECL(dotestcom);
 # endif
+# ifdef DIRLOOK
+extern int NDECL(dodirlook);
+# endif
 #endif /* DUMB */
 
 #ifdef OVL1
@@ -1495,6 +1498,9 @@ struct ext_func_tab extcmdlist[] = {
 #endif
 #ifdef TESTCOM
 	{"test", "run a test command", dotestcom, TRUE},
+#endif
+#ifdef DIRLOOK
+	{"dirlook", "look in a direction", dodirlook, TRUE},
 #endif
 	{"loot", "loot a box on the floor", doloot, FALSE},
 	{"monster", "use a monster's special ability", domonability, TRUE},

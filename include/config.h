@@ -349,7 +349,8 @@ typedef unsigned char	uchar;
  */
 
 #define LISTMONS	/* #listmons -extended command */
-#define TESTCOM     // Test command
+#define TESTCOM     /* Test command */
+#define DIRLOOK		/* Directional look command */
 /*#define GOLDOBJ */	/* Gold is kept on obj chains - Helge Hafting */
 /*#define AUTOPICKUP_EXCEPTIONS */ /* exceptions to autopickup */
 
