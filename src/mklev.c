@@ -156,7 +156,6 @@ do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special, is_room)
 	 */
 	croom->fdoor = doorindex;
 	croom->irregular = FALSE;
-	croom->desc = "Test desc";
 
 	croom->nsubrooms = 0;
 	croom->sbrooms[0] = (struct mkroom *) 0;

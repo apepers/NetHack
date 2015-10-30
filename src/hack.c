@@ -1789,7 +1789,6 @@ register boolean newlev;
 		    intemple(roomno + ROOMOFFSET);
 		    /* fall through */
 		default:
-			You(rooms[roomno].desc);
 		    rt = 0;
 	    }
 
