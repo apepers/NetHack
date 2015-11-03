@@ -24,9 +24,12 @@ STATIC_PTR void FDECL(openone,(int,int,genericptr_t));
 int dodirlook()
 {
 	int range,ddx,ddy;
+	char out_str[BUFSZ];
 	range = 0;
-	ddx = 1;
-	ddy = 0;
+	if (!getdir((char *)0)) return (0);
+	if (!u.dx && !u.dy) return (0);
+	ddx = u.dx;
+	ddy = u.dy;
 	bhitpos.x = u.ux;
 	bhitpos.y = u.uy;
 	while (TRUE) {
@@ -42,21 +45,22 @@ int dodirlook()
 		}
 		struct rm *tmpr = &levl[x][y];
 		if (tmpr->seenv == 0) {
+			Sprintf(out_str, "unseen space");
 			break;
 		} 
-		if (IS_ROCK(tmpr->typ)) {
+		if (!ACCESSIBLE(tmpr->typ)) {
+			int glyph;
+			glyph = glyph_at(x,y);
+			Sprintf(out_str, defsyms[glyph_to_cmap(glyph)].explanation);
 			break;
 		} else if (IS_DOOR(tmpr->typ)) {
 			if (closed_door(x,y)) {
+				Sprintf(out_str, "closed door");
 				break;
 			}
 		}
-		int glyph = glyph_at(x,y);
-		if (glyph == NO_GLYPH) {
-			break;
-		}
 	}
-	pline("Edge is %d tiles away.", range);
+	pline("%s (%d tiles away.)", out_str, range);
 	return 0;	
 }
 #endif
