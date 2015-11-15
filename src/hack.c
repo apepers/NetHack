@@ -1835,6 +1835,9 @@ register boolean newlev;
 int
 dopickup()
 {
+	if (text_mode) {
+		pline("Text mode yes");
+	}
 	int count;
 	struct trap *traphere = t_at(u.ux, u.uy);
  	/* awful kludge to work around parse()'s pre-decrement */
