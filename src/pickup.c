@@ -19,6 +19,7 @@ STATIC_DCL boolean FDECL(query_classes, (char *,boolean *,boolean *,
 STATIC_DCL void FDECL(check_here, (BOOLEAN_P));
 STATIC_DCL boolean FDECL(n_or_more, (struct obj *));
 STATIC_DCL boolean FDECL(all_but_uchain, (struct obj *));
+STATIC_DCL boolean FDECL(in_room, (struct obj *));
 #if 0 /* not used */
 STATIC_DCL boolean FDECL(allow_cat_no_uchain, (struct obj *));
 #endif
@@ -311,6 +312,17 @@ struct obj *obj;
     return (obj != uchain);
 }
 
+/* query_objlist callback: return TRUE if in the same room as player */
+STATIC_OVL boolean
+in_room(obj)
+struct obj *obj;
+{
+	if (levl[u.ux][u.uy].roomno == levl[obj->ox][obj->oy].roomno)
+		return TRUE;
+	else
+		return FALSE;
+}
+
 /* query_objlist callback: return TRUE */
 /*ARGSUSED*/
 boolean
@@ -445,8 +457,13 @@ int what;		/* should be a long */
 
 	add_valid_menu_class(0);	/* reset */
 	if (!u.uswallow) {
-		objchain = level.objects[u.ux][u.uy];
-		traverse_how = BY_NEXTHERE;
+		if (text_mode) {
+			objchain = fobj;
+			traverse_how = 0;
+		} else {
+			objchain = level.objects[u.ux][u.uy];
+			traverse_how = BY_NEXTHERE;
+		}
 	} else {
 		objchain = u.ustuck->minvent;
 		traverse_how = 0;	/* nobj */
@@ -478,7 +495,7 @@ int what;		/* should be a long */
 	    } else {
 		n = query_objlist("Pick up what?", objchain,
 			traverse_how|AUTOSELECT_SINGLE|INVORDER_SORT|FEEL_COCKATRICE,
-			&pick_list, PICK_ANY, all_but_uchain);
+			&pick_list, PICK_ANY, text_mode ? in_room : all_but_uchain);
 	    }
 menu_pickup:
 	    n_tried = n;
