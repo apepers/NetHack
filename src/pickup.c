@@ -8,6 +8,9 @@
 
 #include "hack.h"
 
+static NEARDATA menu_item *plist;
+static NEARDATA int plistcount, plistcurrent;
+
 STATIC_DCL void FDECL(simple_look, (struct obj *,BOOLEAN_P));
 #ifndef GOLDOBJ
 STATIC_DCL boolean FDECL(query_classes, (char *,boolean *,boolean *,
@@ -23,6 +26,8 @@ STATIC_DCL boolean FDECL(in_room, (struct obj *));
 #if 0 /* not used */
 STATIC_DCL boolean FDECL(allow_cat_no_uchain, (struct obj *));
 #endif
+STATIC_DCL void FDECL(travel_to_item, (struct obj *));
+STATIC_PTR int NDECL(pickup_item);
 STATIC_DCL int FDECL(autopick, (struct obj*, int, menu_item **));
 STATIC_DCL int FDECL(count_categories, (struct obj *,int));
 STATIC_DCL long FDECL(carry_count,
@@ -381,6 +386,62 @@ register struct obj *otmp;
 	        && (index(valid_menu_classes, otmp->oclass) != (char *)0));
 }
 
+void
+travel_to_item(item)
+register struct obj *item;
+{
+	iflags.travelcc.x = u.tx = item->ox;
+	iflags.travelcc.y = u.ty = item->oy;
+	if (iflags.travelcmd) {
+		flags.travel = 1;
+		iflags.travel1 = 1;
+		flags.run = 8;
+		flags.nopick = 1;
+		if (!multi) multi = max(COLNO, ROWNO);
+		u.last_str_turn = 0;
+		flags.mv = TRUE;
+		domove();
+	}	
+}
+
+STATIC_PTR int
+pickup_item()
+{
+	//You("pick up item?");
+	if (!plist || plistcount <= 0) {
+		You("have a serious problem, count was %d", plistcount);
+		return (0);
+	}
+	if (u.ux != u.tx || u.uy != u.ty) {
+		//You("haven't reached the destination yet");
+		return (1);
+	}
+	struct obj *curobj = plist[plistcurrent].item.a_obj;
+	You("are doing the pickup! Object at %d, %d, count = %d", curobj->ox, curobj->oy, 
+		plist[plistcurrent].count);
+	int res;
+	res = pickup_object(plist[plistcurrent].item.a_obj, plist[plistcurrent].count, FALSE);
+	if (res < 0) {
+		You("failed to pickup");
+		free ((genericptr_t)plist);
+		plist = (menu_item *) 0;
+		plistcount = 0;
+		plistcurrent = 0;
+		return (0);
+	}
+	if (++plistcurrent < plistcount) {
+		You("are picking up the next thing now");
+		travel_to_item(plist[plistcurrent].item.a_obj);
+		return (1);
+	}
+	You("finished picking up");
+	free ((genericptr_t)plist);
+	plist = (menu_item *) 0;
+	plistcount = 0;
+	plistcurrent = 0;
+	return (0);
+}
+
 /*
  * Have the hero pick things from the ground
  * or a monster's inventory if swallowed.
@@ -399,6 +460,7 @@ int what;		/* should be a long */
 {
 	int i, n, res, count, n_tried = 0, n_picked = 0;
 	menu_item *pick_list = (menu_item *) 0;
+	//plist = (menu_item *) 0;
 	boolean autopickup = what > 0;
 	struct obj *objchain;
 	int traverse_how;
@@ -476,10 +538,23 @@ int what;		/* should be a long */
 	 */
 	if (autopickup) {
 	    n = autopick(objchain, traverse_how, &pick_list);
-	    goto menu_pickup;
+		n_tried = n;
+	    for (n_picked = i = 0 ; i < n; i++) {
+		res = pickup_object(pick_list[i].item.a_obj,pick_list[i].count,
+					FALSE);
+		if (res < 0) break;	/* can't continue */
+		n_picked += res;
+		}
+		if (pick_list) free((genericptr_t)pick_list);
+	    goto end_query;
 	}
 
 	if (flags.menu_style != MENU_TRADITIONAL || iflags.menu_requested) {
+		if (plist) {
+			You("messed up, plist was set still");
+			free ((genericptr_t)plist);
+		}
+		plist = (menu_item *) 0;
 
 	    /* use menus exclusively */
 	    if (count) {	/* looking for N of something */
@@ -495,16 +570,25 @@ int what;		/* should be a long */
 	    } else {
 		n = query_objlist("Pick up what?", objchain,
 			traverse_how|AUTOSELECT_SINGLE|INVORDER_SORT|FEEL_COCKATRICE,
-			&pick_list, PICK_ANY, text_mode ? in_room : all_but_uchain);
+			&plist, PICK_ANY, text_mode ? in_room : all_but_uchain);
 	    }
 menu_pickup:
-	    n_tried = n;
+		plistcount = n;
+		plistcurrent = 0;
+		if (plistcount > 0) {
+			set_occupation(pickup_item, "picking up", 0);
+			travel_to_item(plist[0].item.a_obj);
+			n_tried = 1;
+		} else {
+			n_tried = 0;
+		}
+	    /*n_tried = n;
 	    for (n_picked = i = 0 ; i < n; i++) {
 		res = pickup_object(pick_list[i].item.a_obj,pick_list[i].count,
 					FALSE);
-		if (res < 0) break;	/* can't continue */
+		if (res < 0) break;	/* can't continue /
 		n_picked += res;
-	    }
+	    }*/
 	    if (pick_list) free((genericptr_t)pick_list);
 
 	} else {

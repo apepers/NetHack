@@ -721,6 +721,7 @@ boolean guess;
 	    u.dy = u.ty-u.uy;
 	    nomul(0);
 	    iflags.travelcc.x = iflags.travelcc.y = -1;
+		You("ended up adjacent");
 	    return TRUE;
 	}
 	flags.run = 8;
@@ -785,6 +786,7 @@ boolean guess;
 				u.dx = x-ux;
 				u.dy = y-uy;
 				if (x == u.tx && y == u.ty) {
+					You("end move in this way I don't understand");
 				    nomul(0);
 				    /* reset run so domove run checks work */
 				    flags.run = 8;
@@ -856,6 +858,7 @@ found:
     u.dx = 0;
     u.dy = 0;
     nomul(0);
+	You("hit the found goto");
     return FALSE;
 }
 
