@@ -406,16 +406,12 @@ moveloop()
 	    if (flags.mv) {
 		if(multi < COLNO && !--multi) {
 		    flags.travel = iflags.travel1 = flags.mv = flags.run = 0;
-			You("finish travelling at x: %d, y: %d", u.ux, u.uy);
 		}
 		domove();
-		You("are at x: %d, y: %d", u.ux, u.uy);
-		if (u.ux == u.tx && u.uy == u.ty) 
-			You("reached your destination");
-	    } else {
+		} else {
 		--multi;
 		rhack(save_cm);
-	    }
+		}
 	} else if (multi == 0) {
 #ifdef MAIL
 	    ckmailstatus();

@@ -284,13 +284,14 @@ boolean picked_some;
 /* Value set by query_objlist() for n_or_more(). */
 static long val_for_n_or_more;
 
-/* query_objlist callback: return TRUE if obj's count is >= reference value */
+/* query_objlist callback: return TRUE if obj's count is >= reference value,
+   and object is in the room. */
 STATIC_OVL boolean
 n_or_more(obj)
 struct obj *obj;
 {
     if (obj == uchain) return FALSE;
-    return (obj->quan >= val_for_n_or_more);
+    return (obj->quan >= val_for_n_or_more && in_room(obj));
 }
 
 /* List of valid menu classes for query_objlist() and allow_category callback */
@@ -407,22 +408,17 @@ register struct obj *item;
 STATIC_PTR int
 pickup_item()
 {
-	//You("pick up item?");
 	if (!plist || plistcount <= 0) {
-		You("have a serious problem, count was %d", plistcount);
+		impossible("count was %d or plist was undefined", plistcount);
 		return (0);
 	}
 	if (u.ux != u.tx || u.uy != u.ty) {
-		//You("haven't reached the destination yet");
 		return (1);
 	}
 	struct obj *curobj = plist[plistcurrent].item.a_obj;
-	You("are doing the pickup! Object at %d, %d, count = %d", curobj->ox, curobj->oy, 
-		plist[plistcurrent].count);
 	int res;
-	res = pickup_object(plist[plistcurrent].item.a_obj, plist[plistcurrent].count, FALSE);
+	res = pickup_object(curobj, plist[plistcurrent].count, FALSE);
 	if (res < 0) {
-		You("failed to pickup");
 		free ((genericptr_t)plist);
 		plist = (menu_item *) 0;
 		plistcount = 0;
@@ -430,11 +426,9 @@ pickup_item()
 		return (0);
 	}
 	if (++plistcurrent < plistcount) {
-		You("are picking up the next thing now");
-		travel_to_item(plist[plistcurrent].item.a_obj);
+		travel_to_item(curobj);
 		return (1);
 	}
-	You("finished picking up");
 	free ((genericptr_t)plist);
 	plist = (menu_item *) 0;
 	plistcount = 0;
@@ -458,9 +452,7 @@ int
 pickup(what)
 int what;		/* should be a long */
 {
-	int i, n, res, count, n_tried = 0, n_picked = 0;
-	menu_item *pick_list = (menu_item *) 0;
-	//plist = (menu_item *) 0;
+	int i, n, res, count, n_tried = 0, n_picked = 0, pickflags;
 	boolean autopickup = what > 0;
 	struct obj *objchain;
 	int traverse_how;
@@ -519,7 +511,8 @@ int what;		/* should be a long */
 
 	add_valid_menu_class(0);	/* reset */
 	if (!u.uswallow) {
-		if (text_mode) {
+		if (text_mode && !autopickup && (flags.menu_style != MENU_TRADITIONAL
+				|| iflags.menu_requested)) {
 			objchain = fobj;
 			traverse_how = 0;
 		} else {
@@ -530,67 +523,62 @@ int what;		/* should be a long */
 		objchain = u.ustuck->minvent;
 		traverse_how = 0;	/* nobj */
 	}
+	if (plist) {
+		free ((genericptr_t)plist);
+	}
+	plist = (menu_item *) 0;
+		
 	/*
 	 * Start the actual pickup process.  This is split into two main
 	 * sections, the newer menu and the older "traditional" methods.
 	 * Automatic pickup has been split into its own menu-style routine
 	 * to make things less confusing.
 	 */
+	pickflags = traverse_how; 
 	if (autopickup) {
-	    n = autopick(objchain, traverse_how, &pick_list);
-		n_tried = n;
-	    for (n_picked = i = 0 ; i < n; i++) {
-		res = pickup_object(pick_list[i].item.a_obj,pick_list[i].count,
-					FALSE);
-		if (res < 0) break;	/* can't continue */
-		n_picked += res;
-		}
-		if (pick_list) free((genericptr_t)pick_list);
-	    goto end_query;
+	    n = autopick(objchain, pickflags, &plist);
+		goto menu_pickup;
 	}
-
+	if (!text_mode)
+		pickflags |= AUTOSELECT_SINGLE;
+	pickflags |= INVORDER_SORT;
 	if (flags.menu_style != MENU_TRADITIONAL || iflags.menu_requested) {
-		if (plist) {
-			You("messed up, plist was set still");
-			free ((genericptr_t)plist);
-		}
-		plist = (menu_item *) 0;
-
 	    /* use menus exclusively */
 	    if (count) {	/* looking for N of something */
 		char buf[QBUFSZ];
 		Sprintf(buf, "Pick %d of what?", count);
 		val_for_n_or_more = count;	/* set up callback selector */
-		n = query_objlist(buf, objchain,
-			    traverse_how|AUTOSELECT_SINGLE|INVORDER_SORT,
-			    &pick_list, PICK_ONE, n_or_more);
+		n = query_objlist(buf, objchain, pickflags,
+			    &plist, PICK_ONE, n_or_more);
 		/* correct counts, if any given */
 		for (i = 0; i < n; i++)
-		    pick_list[i].count = count;
+		    plist[i].count = count;
 	    } else {
-		n = query_objlist("Pick up what?", objchain,
-			traverse_how|AUTOSELECT_SINGLE|INVORDER_SORT|FEEL_COCKATRICE,
+		pickflags |= FEEL_COCKATRICE;
+		n = query_objlist("Pick up what?", objchain, pickflags,
 			&plist, PICK_ANY, text_mode ? in_room : all_but_uchain);
 	    }
 menu_pickup:
 		plistcount = n;
 		plistcurrent = 0;
-		if (plistcount > 0) {
+		if (text_mode && !autopickup) {
+			if (plistcount > 0) {
 			set_occupation(pickup_item, "picking up", 0);
 			travel_to_item(plist[0].item.a_obj);
 			n_tried = 1;
-		} else {
+			} else {
 			n_tried = 0;
-		}
-	    /*n_tried = n;
-	    for (n_picked = i = 0 ; i < n; i++) {
-		res = pickup_object(pick_list[i].item.a_obj,pick_list[i].count,
+			}
+		} else {
+	    	n_tried = n;
+	    	for (n_picked = i = 0 ; i < n; i++) {
+			res = pickup_object(plist[i].item.a_obj,plist[i].count,
 					FALSE);
-		if (res < 0) break;	/* can't continue /
-		n_picked += res;
-	    }*/
-	    if (pick_list) free((genericptr_t)pick_list);
-
+			if (res < 0) break;	/* can't continue */
+			n_picked += res;
+	    	}
+			if (plist) free((genericptr_t)plist);
+		}
 	} else {
 	    /* old style interface */
 	    int ct = 0;
@@ -633,7 +621,7 @@ menu_pickup:
 		    n = query_objlist("Pick up what?",
 				  objchain,
 				  traverse_how|(selective ? 0 : INVORDER_SORT),
-				  &pick_list, PICK_ANY,
+				  &plist, PICK_ANY,
 				  via_menu == -2 ? allow_all : allow_category);
 		    goto menu_pickup;
 		}

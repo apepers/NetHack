@@ -47,3 +47,4 @@ src/vis_tab.c
 sys/winnt/NetHack.ico
 *.NetHack-saved-game
 *.diff
+scratchpad.cpp
