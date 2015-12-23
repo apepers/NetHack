@@ -412,10 +412,27 @@ pickup_item()
 		impossible("count was %d or plist was undefined", plistcount);
 		return (0);
 	}
+	struct obj *curobj = plist[plistcurrent].item.a_obj;
+	if (u.tx != curobj->ox || u.ty != curobj->oy) {
+		pline("%s has been moved.", doname(curobj));
+		nomul(0);
+		return 0;
+	}
+	if (curobj->where != OBJ_FLOOR) {
+		pline("%s has been picked up!", doname(curobj));
+		nomul(0);
+		return 0;
+	}
+		
 	if (u.ux != u.tx || u.uy != u.ty) {
+		//pline("tx = %d, ty = %d, multi = %d", u.tx, u.ty, multi);
+		if (multi == 0) {
+			Your("movement is interrupted.");
+			return 0;
+		}
 		return (1);
 	}
-	struct obj *curobj = plist[plistcurrent].item.a_obj;
+
 	int res;
 	res = pickup_object(curobj, plist[plistcurrent].count, FALSE);
 	if (res < 0) {
@@ -426,6 +443,12 @@ pickup_item()
 		return (0);
 	}
 	if (++plistcurrent < plistcount) {
+		curobj = plist[plistcurrent].item.a_obj;
+		if (curobj->where != OBJ_FLOOR) {
+			pline("%s has been picked up!", doname(curobj));
+			nomul(0);
+			return 0;
+		}
 		travel_to_item(curobj);
 		return (1);
 	}
