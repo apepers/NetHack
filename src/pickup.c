@@ -419,7 +419,7 @@ pickup_item()
 		return 0;
 	}
 	if (curobj->where != OBJ_FLOOR) {
-		pline("%s has been picked up!", doname(curobj));
+		You("can't pick up %s.", the(xname(curobj)));
 		nomul(0);
 		return 0;
 	}
@@ -445,7 +445,7 @@ pickup_item()
 	if (++plistcurrent < plistcount) {
 		curobj = plist[plistcurrent].item.a_obj;
 		if (curobj->where != OBJ_FLOOR) {
-			pline("%s has been picked up!", doname(curobj));
+			You("can't pick up %s.", the(xname(curobj)));
 			nomul(0);
 			return 0;
 		}
