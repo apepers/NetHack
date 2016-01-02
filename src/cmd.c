@@ -2470,6 +2470,7 @@ dotravel()
 	/* Keyboard travel command */
 	static char cmd[2];
 	coord cc;
+    char buf[BUFSZ];
 
 	if (!iflags.travelcmd) return 0;
 	cmd[1]=0;
@@ -2480,11 +2481,52 @@ dotravel()
 	    cc.x = u.ux;
 	    cc.y = u.uy;
 	}
-	pline("Where do you want to travel to?");
-	if (getpos(&cc, TRUE, "the desired destination") < 0) {
-		/* user pressed ESC */
-		return 0;
-	}
+    
+    Strcpy(buf, "Travel to a dungeon feature?");
+    if (yn(buf) == 'y') {
+    winid tmpwin = create_nhwindow(NHW_MENU);
+    anything any;
+    any.a_void = 0;
+    any.a_int = 1;
+    start_menu(tmpwin);
+    int i, fx, fy, glyph;
+    int fcount = 0;
+    int xlist[ROWNO*COLNO];
+    int ylist[ROWNO*COLNO];
+    for (fy = 0; fy < ROWNO; fy++) {
+        for (fx = 1; fx < COLNO; fx++) {
+            if (levl[fx][fy].seenv &&
+                    IS_FURNITURE(levl[fx][fy].typ)) {
+                xlist[fcount] = fx;
+                ylist[fcount] = fy;
+                fcount++;
+                glyph = back_to_glyph(fx,fy);
+                Sprintf(buf, "%s (%i, %i)", 
+                    defsyms[glyph_to_cmap(glyph)].explanation, fx-u.ux, u.uy-fy);
+                add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                buf, MENU_UNSELECTED);
+                any.a_int++;
+            }
+        }
+    }
+    end_menu(tmpwin, "Travel to which feature?");
+    menu_item *selected;
+    int n;
+    n = select_menu(tmpwin, PICK_ONE, &selected);
+    destroy_nhwindow(tmpwin);
+    if (n > 0) {
+        i = selected[0].item.a_int - 1;
+        cc.x = xlist[i];
+        cc.y = ylist[i];
+        free((genericptr_t)selected);
+    }
+    } else {
+        pline("Where do you want to travel to?");
+	    if (getpos(&cc, TRUE, "the desired destination") < 0) {
+		  /* user pressed ESC */
+		  return 0;
+	    }
+    }
 	iflags.travelcc.x = u.tx = cc.x;
 	iflags.travelcc.y = u.ty = cc.y;
 	cmd[0] = CMD_TRAVEL;
