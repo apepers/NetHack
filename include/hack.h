@@ -149,12 +149,13 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define ALL_FINISHED	  0x01  /* called routine already finished the job */
 
 /* flags to control query_objlist() */
-#define BY_NEXTHERE	  0x1	/* follow objlist by nexthere field */
-#define AUTOSELECT_SINGLE 0x2	/* if only 1 object, don't ask */
-#define USE_INVLET	  0x4	/* use object's invlet */
-#define INVORDER_SORT	  0x8	/* sort objects by packorder */
+#define BY_NEXTHERE	  0x01	/* follow objlist by nexthere field */
+#define AUTOSELECT_SINGLE 0x02	/* if only 1 object, don't ask */
+#define USE_INVLET	  0x04	/* use object's invlet */
+#define INVORDER_SORT	  0x08	/* sort objects by packorder */
 #define SIGNAL_NOMENU	  0x10	/* return -1 rather than 0 if none allowed */
 #define FEEL_COCKATRICE   0x20  /* engage cockatrice checks and react */
+#define LIST_LOCATION   0x40    /* list the relative location of the object */
 
 /* Flags to control query_category() */
 /* BY_NEXTHERE used by query_category() too, so skip 0x01 */

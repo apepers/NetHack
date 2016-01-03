@@ -22,7 +22,7 @@ STATIC_DCL boolean FDECL(query_classes, (char *,boolean *,boolean *,
 STATIC_DCL void FDECL(check_here, (BOOLEAN_P));
 STATIC_DCL boolean FDECL(n_or_more, (struct obj *));
 STATIC_DCL boolean FDECL(all_but_uchain, (struct obj *));
-STATIC_DCL boolean FDECL(in_room, (struct obj *));
+STATIC_DCL boolean FDECL(can_see, (struct obj *));
 #if 0 /* not used */
 STATIC_DCL boolean FDECL(allow_cat_no_uchain, (struct obj *));
 #endif
@@ -291,7 +291,7 @@ n_or_more(obj)
 struct obj *obj;
 {
     if (obj == uchain) return FALSE;
-    return (obj->quan >= val_for_n_or_more && in_room(obj));
+    return (obj->quan >= val_for_n_or_more && can_see(obj));
 }
 
 /* List of valid menu classes for query_objlist() and allow_category callback */
@@ -320,13 +320,10 @@ struct obj *obj;
 
 /* query_objlist callback: return TRUE if in the same room as player */
 STATIC_OVL boolean
-in_room(obj)
+can_see(obj)
 struct obj *obj;
 {
-	if (levl[u.ux][u.uy].roomno == levl[obj->ox][obj->oy].roomno)
-		return TRUE;
-	else
-		return FALSE;
+    return cansee(obj->ox, obj->oy);
 }
 
 /* query_objlist callback: return TRUE */
@@ -564,6 +561,8 @@ int what;		/* should be a long */
 	}
 	if (!text_mode)
 		pickflags |= AUTOSELECT_SINGLE;
+    else
+        pickflags |= LIST_LOCATION;
 	pickflags |= INVORDER_SORT;
 	if (flags.menu_style != MENU_TRADITIONAL || iflags.menu_requested) {
 	    /* use menus exclusively */
@@ -579,7 +578,7 @@ int what;		/* should be a long */
 	    } else {
 		pickflags |= FEEL_COCKATRICE;
 		n = query_objlist("Pick up what?", objchain, pickflags,
-			&plist, PICK_ANY, text_mode ? in_room : all_but_uchain);
+			&plist, PICK_ANY, text_mode ? can_see : all_but_uchain);
 	    }
 menu_pickup:
 		plistcount = n;
@@ -792,6 +791,7 @@ menu_item **pick_list;	/* list of objects and counts to pick up */
  *	USE_INVLET	  - Use object's invlet.
  *	INVORDER_SORT	  - Use hero's pack order.
  *	SIGNAL_NOMENU	  - Return -1 rather than 0 if nothing passes "allow".
+ *  LIST_LOCATION     - List the relative location of the object
  */
 int
 query_objlist(qstr, olist, qflags, pick_list, how, allow)
@@ -808,6 +808,7 @@ boolean FDECL((*allow), (OBJ_P));/* allow function */
 	char *pack;
 	anything any;
 	boolean printed_type_name;
+    char buf[BUFSZ];
 
 	*pick_list = (menu_item *) 0;
 	if (!olist) return 0;
@@ -861,10 +862,15 @@ boolean FDECL((*allow), (OBJ_P));/* allow function */
 		    }
 
 		    any.a_obj = curr;
+            if (qflags & LIST_LOCATION) {
+                Sprintf(buf, "%s (%i, %i)", doname(curr), curr->ox-u.ux, u.uy-curr->oy);
+            } else {
+                Sprintf(buf, "%s", doname(curr));
+            }
 		    add_menu(win, obj_to_glyph(curr), &any,
 			    qflags & USE_INVLET ? curr->invlet : 0,
 			    def_oc_syms[(int)objects[curr->otyp].oc_class],
-			    ATR_NONE, doname(curr), MENU_UNSELECTED);
+			    ATR_NONE, buf, MENU_UNSELECTED);
 		}
 	    }
 	    pack++;
