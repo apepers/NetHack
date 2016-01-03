@@ -125,7 +125,7 @@ static struct Bool_Opt
 #else
 	{"mail", (boolean *)0, TRUE, SET_IN_FILE},
 #endif
-     { "mention_walls", &iflags.mention_walls, FALSE, SET_IN_GAME },
+     { "mention_walls", &iflags.mention_walls, TRUE, SET_IN_GAME },
 #ifdef WIZARD
 	/* for menu debugging only*/
 	{"menu_tab_sep", &iflags.menu_tab_sep, FALSE, SET_IN_GAME},
