@@ -1038,6 +1038,7 @@ domove()
 			     sensemon(mtmp))) {
 				nomul(0);
 				flags.move = 0;
+                pline("%s blocks the way.", upstart(y_monnam(mtmp)));
 				return;
 			}
 		}
@@ -1946,8 +1947,10 @@ lookaround()
 		    mtmp->m_ap_type != M_AP_OBJECT &&
 		    (!mtmp->minvis || See_invisible) && !mtmp->mundetected) {
 	    if((flags.run != 1 && !mtmp->mtame)
-					|| (x == u.ux+u.dx && y == u.uy+u.dy))
-		goto stop;
+					|| (x == u.ux+u.dx && y == u.uy+u.dy)) {
+          You("stop what you're doing because of %s.", mon_nam(mtmp));
+		  goto stop;
+        }
 	}
 
 	if (levl[x][y].typ == STONE) continue;
@@ -1983,19 +1986,24 @@ bcorr:
 	    continue;
 	} else if ((trap = t_at(x,y)) && trap->tseen) {
 	    if(flags.run == 1) goto bcorr;	/* if you must */
-	    if(x == u.ux+u.dx && y == u.uy+u.dy) goto stop;
+	    if(x == u.ux+u.dx && y == u.uy+u.dy) {
+            You("stop as you notice a trap.");
+            goto stop;
+        }
 	    continue;
 	} else if (is_pool(x,y) || is_lava(x,y)) {
 	    /* water and lava only stop you if directly in front, and stop
 	     * you even if you are running
 	     */
 	    if(!Levitation && !Flying && !is_clinger(youmonst.data) &&
-				x == u.ux+u.dx && y == u.uy+u.dy)
+				x == u.ux+u.dx && y == u.uy+u.dy) {
 			/* No Wwalking check; otherwise they'd be able
 			 * to test boots by trying to SHIFT-direction
 			 * into a pool and seeing if the game allowed it
 			 */
+            You("stop at the edge of the %s.", is_pool(x,y) ? "water" : "lava");
 			goto stop;
+        }
 	    continue;
 	} else {		/* e.g. objects or trap or stairs */
 	    if(flags.run == 1) goto bcorr;
