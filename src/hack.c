@@ -1795,7 +1795,8 @@ register boolean newlev;
 		    intemple(roomno + ROOMOFFSET);
 		    /* fall through */
 		default:
-		    rt = 0;
+            rt = 0;
+            dolistseen();
 	    }
 
 	    if (rt != 0) {

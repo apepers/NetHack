@@ -24,8 +24,8 @@ S       save    save the game (to be continued later) and exit
 O       options set options
 /       whatis  tell what a map symbol represents
 \       known   display list of what's been discovered
-v       version display version number
-V       history display game history
+v       view    view visible monsters, objects, and dungeon features 
+V       version display version number
 X       explore switch the game to explore (discovery) mode
 ^A      again   redo the previous command (^A denotes the keystroke CTRL-A)
 ^R      redraw  redraw the screen
@@ -90,6 +90,7 @@ M-c     chat    talk to someone
 M-d     dip     dip an object into something
 M-e     enhance advance or check weapons skills
 M-f     force   force a lock
+M-h     history view the history of the game
 M-i     invoke  invoke an object's special powers
 M-j     jump    jump to another location
 M-l     loot    loot a box on the floor

@@ -318,7 +318,7 @@ struct obj *obj;
     return (obj != uchain);
 }
 
-/* query_objlist callback: return TRUE if in the same room as player */
+/* query_objlist callback: return TRUE if the player can see the object */
 STATIC_OVL boolean
 can_see(obj)
 struct obj *obj;
