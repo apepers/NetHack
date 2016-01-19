@@ -69,82 +69,82 @@ int dodirlook()
 #define LM_PLINELIM 4 /* # of uniquely identifiable monsters needed for
 		         showing in a separate window. */
 
-struct _listseen {
-    struct _listseen *next;
+struct _listmons {
+    struct _listmons *next;
     xchar prefix;  /* 0 = no prefix, 1 = an(), 2 = the() */
     char *name;
 	int xdif, ydif;
 };
 
 static struct {
-    struct _listseen *slist;
-    long diffseen, allseen;
+    struct _listmons *mlist;
+    long diffmons, allmons;
     boolean see;
-} seelist = {
+} monlist = {
     0, 0, 0, TRUE
 };
 
 void
-add_str_listseen(str, prefix, xdif, ydif)
+add_str_listmons(str, prefix, xdif, ydif)
 char *str;
 xchar prefix;
 int xdif, ydif;
 {
-    struct _listseen *tmp;
+    struct _listmons *tmp;
 
-    seelist.allseen++;
+    monlist.allmons++;
 
-    for (tmp = seelist.slist; tmp; tmp = tmp->next) {
+    for (tmp = monlist.mlist; tmp; tmp = tmp->next) {
     }
-    tmp = (struct _listseen *) alloc(sizeof(struct _listseen));
-    tmp->next = seelist.slist;
+    tmp = (struct _listmons *) alloc(sizeof(struct _listmons));
+    tmp->next = monlist.mlist;
     tmp->prefix = prefix;
 	tmp->xdif = xdif;
 	tmp->ydif = ydif;
     tmp->name = (char *) alloc(strlen(str)+1);
     (void) memcpy((genericptr_t)tmp->name, (genericptr_t)str, strlen(str)+1);
-    seelist.slist = tmp;
-    seelist.diffseen++;
+    monlist.mlist = tmp;
+    monlist.diffmons++;
 }
 
 void
-free_listseen()
+free_listmons()
 {
-    struct _listseen *tmp = seelist.slist;
+    struct _listmons *tmp = monlist.mlist;
 
     while (tmp) {
-	struct _listseen *tmp2 = tmp->next;
+	struct _listmons *tmp2 = tmp->next;
 	free(tmp->name);
 	free(tmp);
 	tmp = tmp2;
     }
 
-    seelist.slist = (struct _listseen *)0;
-    seelist.diffseen = seelist.allseen = 0;
-    seelist.see = TRUE;
+    monlist.mlist = (struct _listmons *)0;
+    monlist.diffmons = monlist.allmons = 0;
+    monlist.see = TRUE;
 }
 
 void
-show_listseen()
+show_listmons()
 {
-    struct _listseen *tmp;
+    struct _listmons *tmp;
     char buf[BUFSZ];
 
-    if (seelist.allseen < 1) {
-	You(canseeself() ? "don't see anything." :
+    if (monlist.allmons < 1) {
+	You(canseeself() ? "don't see any monsters." :
 			   "can't even see yourself.");
 	return;
     }
 
-    if (seelist.diffseen >= LM_PLINELIM) {
+    if (monlist.diffmons >= LM_PLINELIM) {
 	/* show the monsters in a window */
 	winid win = create_nhwindow(NHW_MENU);
-	Sprintf(buf, "You can %s %li things:",
-		seelist.see ? "see" : "sense",
-		seelist.allseen);
+	Sprintf(buf, "You can %s %li creatures:",
+		monlist.see ? "see" : "sense",
+		monlist.allmons);
 	putstr(win, 0, buf);
 	putstr(win, 0, "");
-	for (tmp = seelist.slist; tmp; tmp = tmp->next) {
+	for (tmp = monlist.mlist; tmp; tmp = tmp->next) {
 		switch (tmp->prefix) {
 		case 2:  Sprintf(buf, "%s (%i, %i)", the(tmp->name), tmp->xdif, tmp->ydif); break;
 		case 1:  Sprintf(buf, "%s (%i, %i)", an(tmp->name), tmp->xdif, tmp->ydif);  break;
@@ -156,14 +156,14 @@ show_listseen()
 	destroy_nhwindow(win);
     } else {
 	// just pline() the monsters 
-	long allseen = seelist.allseen;
+	long allmon = monlist.allmons;
 	Sprintf(buf, "%s%s ",
-		(seelist.allseen == 1) ? "only " : "",
-		seelist.see ? "see" : "sense");
-	for (tmp = seelist.slist; tmp; tmp = tmp->next) {
-	    allseen -= 1;
-	    if (tmp != seelist.slist)
-		Sprintf(eos(buf),"%s", (allseen) ? ", " : " and ");
+		(monlist.allmons == 1) ? "only " : "",
+		monlist.see ? "see" : "sense");
+	for (tmp = monlist.mlist; tmp; tmp = tmp->next) {
+	    allmon -= 1;
+	    if (tmp != monlist.mlist)
+		Sprintf(eos(buf),"%s", (allmon) ? ", " : " and ");
 		switch (tmp->prefix) {
 		case 2:  Sprintf(eos(buf), "%s (%i, %i)", the(tmp->name), tmp->xdif, tmp->ydif); break;
 		case 1:  Sprintf(eos(buf), "%s (%i, %i)", an(tmp->name), tmp->xdif, tmp->ydif);  break;
@@ -175,10 +175,19 @@ show_listseen()
 }
 
 int
-dolistseen()
+dolistmons()
 {
     struct monst *mtmp;
     char buf[BUFSZ];
+
+    /* It would be too easy to see the funny hallucinatory monsters
+     * for example in the bigroom, and this function doesn't give
+     * any real information while you're hallucinating anyway.
+     */
+    if (Hallucination) {
+	You("can't bear to look at all those evil monsters!");
+	return 0;
+    }
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	register int sensed = (canspotmon(mtmp) &&
@@ -193,42 +202,16 @@ dolistseen()
 
 	    Sprintf(eos(buf), "%s", l_monnam(mtmp));
 
-	    if (!canseemon(mtmp)) seelist.see = FALSE;
+	    if (!canseemon(mtmp)) monlist.see = FALSE;
 
 		int xdif = mtmp->mx - (int)u.ux;
 		int ydif = (int)u.uy - mtmp->my;
 
-	    add_str_listseen(&buf[0], (is_uniq || mtmp->isshk) ? 2 : 1, xdif, ydif);
+	    add_str_listmons(&buf[0], (is_uniq || mtmp->isshk) ? 2 : 1, xdif, ydif);
 	}
     }
-    
-    struct obj *otmp;
-    for (otmp = fobj; otmp; otmp = otmp->nobj) {
-        if (cansee(otmp->ox, otmp->oy)) {
-            buf[0] = '\0';
-            Sprintf(eos(buf), "%s", doname(otmp));
-            int xdif = otmp->ox - (int)u.ux;
-            int ydif = (int)u.uy - otmp->oy;
-            add_str_listseen(&buf[0], 0, xdif, ydif);
-        }
-    }
-    
-    int fx, fy, glyph;
-    for (fy = 0; fy < ROWNO; fy++) {
-        for (fx = 1; fx < COLNO; fx++) {
-            if (cansee(fx, fy) && (IS_FURNITURE(levl[fx][fy].typ) || 
-                    IS_DOOR(levl[fx][fy].typ))) {
-                buf[0] = '\0';
-                glyph = back_to_glyph(fx,fy);
-                Sprintf(eos(buf), "%s", defsyms[glyph_to_cmap(glyph)].explanation);
-                int xdif = fx - u.ux;
-                int ydif = u.uy - fy;
-                add_str_listseen(&buf[0], 1, xdif, ydif);
-            }
-        }
-    }
-    show_listseen();
-    free_listseen();
+    show_listmons();
+    free_listmons();
     return 0;
 }
 #endif /*LISTMONS*/

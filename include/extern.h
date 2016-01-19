@@ -210,7 +210,7 @@ E const char *FDECL(level_distance, (d_level *));
 E void FDECL(use_crystal_ball, (struct obj *));
 E void NDECL(do_mapping);
 #ifdef LISTMONS
-E int NDECL(dolistseen);
+E int NDECL(dolistmons);
 #endif
 #ifdef TESTCOM
 E int NDECL(dotestcom);
