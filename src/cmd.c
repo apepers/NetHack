@@ -98,7 +98,7 @@ extern int NDECL(dowieldquiver); /**/
 extern int NDECL(dozap); /**/
 extern int NDECL(doorganize); /**/
 # ifdef LISTMONS
-extern int NDECL(dolistmons); /**/
+extern int NDECL(dolistseen); /**/
 # endif
 # ifdef TESTCOM
 extern int NDECL(dotestcom);
@@ -1406,6 +1406,7 @@ static const struct func_tab cmdlist[] = {
 /*	'g', 'G' : multiple go */
 /*	'h', 'H' : go west */
 	{'h', TRUE, dohelp}, /* if number_pad is set */
+    {M('h'), TRUE, dohistory},
 	{'i', TRUE, ddoinv},
 	{'I', TRUE, dotypeinv},		/* Robert Viduya */
 	{M('i'), TRUE, doinvoke},
@@ -1441,8 +1442,13 @@ static const struct func_tab cmdlist[] = {
 /*	'u', 'U' : go ne */
 	{'u', FALSE, dountrap}, /* if number_pad is on */
 	{M('u'), FALSE, dountrap},
-	{'v', TRUE, doversion},
-	{'V', TRUE, dohistory},
+#ifdef LISTMONS
+    {'v', TRUE, dolistseen},
+    {'V', TRUE, doversion},
+#else
+    {'v', TRUE, doversion},
+    {'V', TRUE, dohistory},
+#endif
 	{M('v'), TRUE, doextversion},
 	{'w', FALSE, dowield},
 	{'W', FALSE, dowear},
@@ -1491,11 +1497,9 @@ struct ext_func_tab extcmdlist[] = {
 	{"enhance", "advance or check weapons skills", enhance_weapon_skill,
 							TRUE},
 	{"force", "force a lock", doforce, FALSE},
+    {"history", "show game history", dohistory, TRUE},
 	{"invoke", "invoke an object's powers", doinvoke, TRUE},
 	{"jump", "jump to a location", dojump, FALSE},
-#ifdef LISTMONS
-	{"listmons", "list monsters you can see or detect", dolistmons, TRUE},
-#endif
 #ifdef TESTCOM
 	{"test", "run a test command", dotestcom, TRUE},
 #endif

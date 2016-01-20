@@ -1796,6 +1796,7 @@ register boolean newlev;
 		    /* fall through */
 		default:
 		    rt = 0;
+            dolistseen();
 	    }
 
 	    if (rt != 0) {
