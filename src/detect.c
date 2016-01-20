@@ -94,8 +94,6 @@ int xdif, ydif;
 
     seelist.allseen++;
 
-    for (tmp = seelist.slist; tmp; tmp = tmp->next) {
-    }
     tmp = (struct _listseen *) alloc(sizeof(struct _listseen));
     tmp->next = seelist.slist;
     tmp->prefix = prefix;
@@ -179,7 +177,50 @@ dolistseen()
 {
     struct monst *mtmp;
     char buf[BUFSZ];
-
+    int glyph, xdif, ydif;
+    
+    // Check least important first, most important last
+    int fx, fy;
+    for (fy = 0; fy < ROWNO; fy++) {
+        for (fx = 0; fx < COLNO; fx++) {
+            if (cansee(fx, fy) && (IS_FURNITURE(levl[fx][fy].typ) ||
+                    IS_DOOR(levl[fx][fy].typ))) {
+                buf[0] = '\0';
+                glyph = back_to_glyph(fx,fy);
+                if (glyph_is_cmap(glyph)) {
+                    Sprintf(eos(buf), "%s", defsyms[glyph_to_cmap(glyph)].explanation);
+                }
+                xdif = fx - u.ux;
+                ydif = u.uy - fy;
+                add_str_listseen(&buf[0], 1, xdif, ydif);
+            }
+        }
+    }
+    
+    struct obj *otmp;
+    for (otmp = fobj; otmp; otmp = otmp->nobj) {
+        if (cansee(otmp->ox, otmp->oy)) {
+            buf[0] = '\0';
+            Sprintf(eos(buf), "%s", doname(otmp));
+            xdif = otmp->ox - (int)u.ux;
+            ydif = (int)u.uy - otmp->oy;
+            add_str_listseen(&buf[0], 0, xdif, ydif);
+        }
+    }
+    
+    struct trap *ttmp;
+    for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap) {
+        if (ttmp->tseen && cansee(ttmp->tx, ttmp->ty)) {
+            buf[0] = '\0';
+            glyph = glyph_at(ttmp->tx, ttmp->ty);
+            int tnum = what_trap(glyph_to_trap(glyph));
+            Sprintf(eos(buf), "%s", defsyms[trap_to_defsym(tnum)].explanation);
+            xdif = ttmp->tx - u.ux;
+            ydif = u.uy - ttmp->ty;
+            add_str_listseen(&buf[0], 1, xdif, ydif);
+        }
+    }
+    
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	register int sensed = (canspotmon(mtmp) &&
 		((mtmp->m_ap_type == M_AP_NOTHING) || sensemon(mtmp)));
@@ -195,38 +236,13 @@ dolistseen()
 
 	    if (!canseemon(mtmp)) seelist.see = FALSE;
 
-		int xdif = mtmp->mx - (int)u.ux;
-		int ydif = (int)u.uy - mtmp->my;
+	    xdif = mtmp->mx - (int)u.ux;
+		ydif = (int)u.uy - mtmp->my;
 
 	    add_str_listseen(&buf[0], (is_uniq || mtmp->isshk) ? 2 : 1, xdif, ydif);
 	}
     }
     
-    struct obj *otmp;
-    for (otmp = fobj; otmp; otmp = otmp->nobj) {
-        if (cansee(otmp->ox, otmp->oy)) {
-            buf[0] = '\0';
-            Sprintf(eos(buf), "%s", doname(otmp));
-            int xdif = otmp->ox - (int)u.ux;
-            int ydif = (int)u.uy - otmp->oy;
-            add_str_listseen(&buf[0], 0, xdif, ydif);
-        }
-    }
-    
-    int fx, fy, glyph;
-    for (fy = 0; fy < ROWNO; fy++) {
-        for (fx = 0; fx < COLNO; fx++) {
-            if (cansee(fx, fy) && (IS_FURNITURE(levl[fx][fy].typ) ||
-                    IS_DOOR(levl[fx][fy].typ))) {
-                buf[0] = '\0';
-                glyph = back_to_glyph(fx,fy);
-                Sprintf(eos(buf), "%s", defsyms[glyph_to_cmap(glyph)].explanation);
-                int xdif = fx - u.ux;
-                int ydif = u.uy - fy;
-                add_str_listseen(&buf[0], 1, xdif, ydif);
-            }
-        }
-    }
     show_listseen();
     free_listseen();
     return 0;
