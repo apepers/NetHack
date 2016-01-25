@@ -48,3 +48,6 @@ sys/winnt/NetHack.ico
 *.NetHack-saved-game
 *.diff
 scratchpad.cpp
+*.gcc-orig
+src/Makefile-orig
+src/Makefile.bcc-orig
