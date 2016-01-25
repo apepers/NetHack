@@ -1419,6 +1419,7 @@ register int aflag;
 		    if(levl[x][y].typ == SDOOR) {
 			if(rnl(7-fund)) continue;
 			cvt_sdoor_to_door(&levl[x][y]);	/* .typ = DOOR */
+            You("find a secret door!");
 			exercise(A_WIS, TRUE);
 			nomul(0);
 			if (Blind && !aflag)
@@ -1429,6 +1430,7 @@ register int aflag;
 			if(rnl(7-fund)) continue;
 			levl[x][y].typ = CORR;
 			unblock_point(x,y);	/* vision */
+            You("find a hidden corridor.");
 			exercise(A_WIS, TRUE);
 			nomul(0);
 			newsym(x,y);
