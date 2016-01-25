@@ -216,6 +216,8 @@ E int NDECL(dolistseen);
 E int NDECL(dotestcom);
 #endif
 #ifdef DIRLOOK
+E int FDECL(edgeDistance, (int,int,char*));
+E void NDECL(viewDirs);
 E int NDECL(dodirlook);
 #endif
 E void NDECL(do_vicinity_map);

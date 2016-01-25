@@ -21,22 +21,19 @@ STATIC_PTR void FDECL(findone,(int,int,genericptr_t));
 STATIC_PTR void FDECL(openone,(int,int,genericptr_t));
 
 #ifdef DIRLOOK
-int dodirlook()
+
+int edgeDistance(dx, dy, out_str)
+int dx;
+int dy;
+char *out_str;
 {
-	int range,ddx,ddy;
-	char out_str[BUFSZ];
-	range = 0;
-	if (!getdir((char *)0)) return (0);
-	if (!u.dx && !u.dy) return (0);
-	ddx = u.dx;
-	ddy = u.dy;
-	bhitpos.x = u.ux;
+    int range = 0;
+    bhitpos.x = u.ux;
 	bhitpos.y = u.uy;
 	while (TRUE) {
-		range++;
 		int x,y;
-		bhitpos.x += ddx;
-		bhitpos.y += ddy;
+		bhitpos.x += dx;
+		bhitpos.y += dy;
 		x = bhitpos.x;
 		y = bhitpos.y;
 		if (!isok(x, y)) {
@@ -59,7 +56,40 @@ int dodirlook()
 				break;
 			}
 		}
+        range++;
 	}
+    return range;
+}
+
+void viewDirs()
+{
+    int dx, dy;
+    int nrange, srange, wrange, erange;
+    char desc[BUFSZ];
+    dx = 0;
+    dy = 1;
+    srange = edgeDistance(dx, dy, &desc);
+    dy = -1;
+    nrange = edgeDistance(dx, dy, &desc);
+    dx = 1;
+    dy = 0;
+    erange = edgeDistance(dx, dy, &desc);
+    dx = -1;
+    wrange = edgeDistance(dx, dy, &desc);
+    pline("Visible tiles: %d north, %d east, %d south, %d west.", 
+            nrange, erange, srange, wrange);
+}
+
+int dodirlook()
+{
+	int range,ddx,ddy;
+	char out_str[BUFSZ];
+	range = 0;
+	if (!getdir((char *)0)) return (0);
+	if (!u.dx && !u.dy) return (0);
+	ddx = u.dx;
+	ddy = u.dy;
+    range = edgeDistance(ddx, ddy, &out_str);
 	pline("%s (%d tiles away.)", out_str, range);
 	return 0;	
 }

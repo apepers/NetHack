@@ -104,6 +104,8 @@ extern int NDECL(dolistseen); /**/
 extern int NDECL(dotestcom);
 # endif
 # ifdef DIRLOOK
+extern int NDECL(edgeDistance);
+extern void NDECL(viewDirs);
 extern int NDECL(dodirlook);
 # endif
 #endif /* DUMB */
@@ -1444,12 +1446,12 @@ static const struct func_tab cmdlist[] = {
 	{M('u'), FALSE, dountrap},
 #ifdef LISTMONS
     {'v', TRUE, dolistseen},
-    {'V', TRUE, doversion},
+    {'V', TRUE, viewDirs},
 #else
     {'v', TRUE, doversion},
     {'V', TRUE, dohistory},
 #endif
-	{M('v'), TRUE, doextversion},
+	{M('v'), TRUE, doversion},
 	{'w', FALSE, dowield},
 	{'W', FALSE, dowear},
 	{M('w'), FALSE, dowipe},
