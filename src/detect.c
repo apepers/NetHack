@@ -68,14 +68,14 @@ void viewDirs()
     char desc[BUFSZ];
     dx = 0;
     dy = 1;
-    srange = edgeDistance(dx, dy, &desc);
+    srange = edgeDistance(dx, dy, desc);
     dy = -1;
-    nrange = edgeDistance(dx, dy, &desc);
+    nrange = edgeDistance(dx, dy, desc);
     dx = 1;
     dy = 0;
-    erange = edgeDistance(dx, dy, &desc);
+    erange = edgeDistance(dx, dy, desc);
     dx = -1;
-    wrange = edgeDistance(dx, dy, &desc);
+    wrange = edgeDistance(dx, dy, desc);
     pline("Visible tiles: %d north, %d east, %d south, %d west.", 
             nrange, erange, srange, wrange);
 }
@@ -89,15 +89,13 @@ int dodirlook()
 	if (!u.dx && !u.dy) return (0);
 	ddx = u.dx;
 	ddy = u.dy;
-    range = edgeDistance(ddx, ddy, &out_str);
+    range = edgeDistance(ddx, ddy, out_str);
 	pline("%s (%d tiles away.)", out_str, range);
 	return 0;	
 }
 #endif
 
 #ifdef LISTMONS
-#define LM_PLINELIM 4 /* # of uniquely identifiable monsters needed for
-		         showing in a separate window. */
 
 struct _listseen {
     struct _listseen *next;
@@ -156,7 +154,7 @@ void
 show_listseen()
 {
     struct _listseen *tmp;
-    char buf[BUFSZ];
+    char buf[BUFSZ], loc[BUFSZ], yloc[BUFSZ], xloc[BUFSZ];
 
     if (seelist.allseen < 1) {
 	You(canseeself() ? "don't see anything." :
@@ -164,7 +162,6 @@ show_listseen()
 	return;
     }
 
-    if (seelist.diffseen >= LM_PLINELIM) {
 	/* show in a window */
 	winid win = create_nhwindow(NHW_MENU);
 	Sprintf(buf, "You can %s %li things:",
@@ -173,33 +170,35 @@ show_listseen()
 	putstr(win, 0, buf);
 	putstr(win, 0, "");
 	for (tmp = seelist.slist; tmp; tmp = tmp->next) {
+        loc[0] = '\0';
+        yloc[0] = '\0';
+        xloc[0] = '\0';
+        if (tmp->xdif > 0) {
+            Sprintf(loc, "(%i east", abs(tmp->xdif));
+        } else if (tmp->xdif < 0){
+            Sprintf(loc, "(%i west", abs(tmp->xdif));
+        } else if (tmp->ydif != 0) {
+            Strcpy(loc, "(");
+        }
+        if (tmp->ydif != 0 && tmp->xdif != 0)
+            Strcat(loc, ", ");
+        if (tmp->ydif > 0) {
+            Sprintf(yloc, "%i north)", abs(tmp->ydif));
+        } else if (tmp->ydif < 0) {
+            Sprintf(yloc, "%i south)", abs(tmp->ydif));
+        } else if (tmp->xdif != 0) {
+            Strcpy(yloc, ")");
+        }
+        Strcat(loc, yloc);
 		switch (tmp->prefix) {
-		case 2:  Sprintf(buf, "%s (%i, %i)", the(tmp->name), tmp->xdif, tmp->ydif); break;
-		case 1:  Sprintf(buf, "%s (%i, %i)", an(tmp->name), tmp->xdif, tmp->ydif);  break;
-		default: Sprintf(buf, "%s (%i, %i)", tmp->name, tmp->xdif, tmp->ydif);      break;
+		case 2:  Sprintf(buf, "%s %s", the(tmp->name), loc); break;
+		case 1:  Sprintf(buf, "%s %s", an(tmp->name), loc);  break;
+		default: Sprintf(buf, "%s %s", tmp->name, loc);      break;
 		}
 		putstr(win, 0, buf);
 	}
 	display_nhwindow(win, FALSE);
 	destroy_nhwindow(win);
-    } else {
-	// just pline() 
-	long allseen = seelist.allseen;
-	Sprintf(buf, "%s%s ",
-		(seelist.allseen == 1) ? "only " : "",
-		seelist.see ? "see" : "sense");
-	for (tmp = seelist.slist; tmp; tmp = tmp->next) {
-	    allseen -= 1;
-	    if (tmp != seelist.slist)
-		Sprintf(eos(buf),"%s", (allseen) ? ", " : " and ");
-		switch (tmp->prefix) {
-		case 2:  Sprintf(eos(buf), "%s (%i, %i)", the(tmp->name), tmp->xdif, tmp->ydif); break;
-		case 1:  Sprintf(eos(buf), "%s (%i, %i)", an(tmp->name), tmp->xdif, tmp->ydif);  break;
-		default: Sprintf(eos(buf), "%s (%i, %i)", tmp->name, tmp->xdif, tmp->ydif);      break;
-		}
-	}
-	You("can %s.", buf);
-    }
 }
 
 int
