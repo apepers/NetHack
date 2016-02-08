@@ -97,20 +97,15 @@ int dodirlook()
 
 #ifdef LISTMONS
 
-struct tileDesc {
-    struct tileDesc *next;
-    int xdif, ydif;
-    struct tileItem *items;
-};
-
-struct tileItem {
-    struct tileItem *next;
+struct _listseen {
+    struct _listseen *next;
     xchar prefix;  /* 0 = no prefix, 1 = an(), 2 = the() */
     char *name;
+	int xdif, ydif;
 };
 
 static struct {
-    struct tileDesc *slist;
+    struct _listseen *slist;
     long diffseen, allseen;
     boolean see;
 } seelist = {
@@ -123,34 +118,11 @@ char *str;
 xchar prefix;
 int xdif, ydif;
 {
-    struct tileDesc *tmp;
-    seelist.allseen++;
-    
-    struct tileItem *item;
-    item = (struct tileItem *) alloc(sizeof(struct tileItem));
-    item->prefix = prefix;
-    item->name = (char *) alloc(strlen(str)+1);
-    (void) memcpy((genericptr_t)item->name, (genericptr_t)str, strlen(str)+1);
-    You("add item %s", str);
-    
-    for (tmp = seelist.slist; tmp; tmp = tmp->next) {
-        if (tmp->xdif == xdif && tmp->ydif == ydif) {
-            You("match an existing tile");
-            item->next = tmp->items;
-            tmp->items = item;
-            return;
-        }
-    }
-    You("add a new tile");
-    tmp = (struct tileDesc *) alloc(sizeof(struct tileDesc));
-    tmp->next = seelist.slist;
-    tmp->xdif = xdif;
-    tmp->ydif = ydif;
-    tmp->items = item;
-    seelist.slist = tmp;
-    seelist.diffseen++;
+    struct _listseen *tmp;
 
-   /* tmp = (struct _listseen *) alloc(sizeof(struct _listseen));
+    seelist.allseen++;
+
+    tmp = (struct _listseen *) alloc(sizeof(struct _listseen));
     tmp->next = seelist.slist;
     tmp->prefix = prefix;
 	tmp->xdif = xdif;
@@ -158,29 +130,22 @@ int xdif, ydif;
     tmp->name = (char *) alloc(strlen(str)+1);
     (void) memcpy((genericptr_t)tmp->name, (genericptr_t)str, strlen(str)+1);
     seelist.slist = tmp;
-    seelist.diffseen++;*/
+    seelist.diffseen++;
 }
 
 void
 free_listseen()
 {
-    struct tileDesc *tmp = seelist.slist;
-    struct tileItem *item;
+    struct _listseen *tmp = seelist.slist;
 
     while (tmp) {
-        item = tmp->items;
-        while (item) {
-            struct tileItem *item2 = item->next;
-            free(item->name);
-            free(item);
-            item = item2;
-        }
-	   struct tileDesc *tmp2 = tmp->next;
-	   free(tmp);
-	   tmp = tmp2;
+	struct _listseen *tmp2 = tmp->next;
+	free(tmp->name);
+	free(tmp);
+	tmp = tmp2;
     }
 
-    seelist.slist = (struct tileDesc *)0;
+    seelist.slist = (struct _listseen *)0;
     seelist.diffseen = seelist.allseen = 0;
     seelist.see = TRUE;
 }
@@ -188,8 +153,7 @@ free_listseen()
 void
 show_listseen()
 {
-    struct tileDesc *tmp;
-    struct tileItem *item;
+    struct _listseen *tmp;
     char buf[BUFSZ], loc[BUFSZ], yloc[BUFSZ], xloc[BUFSZ];
 
     if (seelist.allseen < 1) {
@@ -209,7 +173,6 @@ show_listseen()
         loc[0] = '\0';
         yloc[0] = '\0';
         xloc[0] = '\0';
-        buf[0] = '\0';
         if (tmp->xdif > 0) {
             Sprintf(loc, "(%i east", abs(tmp->xdif));
         } else if (tmp->xdif < 0){
@@ -227,14 +190,11 @@ show_listseen()
             Strcpy(yloc, ")");
         }
         Strcat(loc, yloc);
-        for (item = tmp->items; item; item = item->next) {
-		  switch (item->prefix) {
-		  //case 2:  Strcat(buf, the(item->name)); break;
-		  //case 1:  Strcat(buf, an(item->name));  break;
-		  //default: Strcat(buf, item->name);      break;
-		  }
-        }
-        //Strcat(buf, loc);
+		switch (tmp->prefix) {
+		case 2:  Sprintf(buf, "%s %s", the(tmp->name), loc); break;
+		case 1:  Sprintf(buf, "%s %s", an(tmp->name), loc);  break;
+		default: Sprintf(buf, "%s %s", tmp->name, loc);      break;
+		}
 		putstr(win, 0, buf);
 	}
 	display_nhwindow(win, FALSE);
