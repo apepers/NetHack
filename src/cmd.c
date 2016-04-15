@@ -1953,7 +1953,6 @@ register char *cmd;
 	if (do_walk) {
 	    if (multi) flags.mv = TRUE;
 	    domove();
-        viewDirs();
 	    flags.forcefight = 0;
 	    return;
 	} else if (do_rush) {
