@@ -350,16 +350,6 @@ moveloop()
 #endif
 	    continue;
 	}
-	
-#ifdef TEXTMODE
-	if (monster_nearby()) {
-		if (text_mode) 
-		text_mode = FALSE;
-	} else {
-		if (!text_mode)
-		text_mode = TRUE;
-	}
-#endif
 
 	if ((u.uhave.amulet || Clairvoyant) &&
 	    !In_endgame(&u.uz) && !BClairvoyant &&

@@ -26,10 +26,6 @@ E char SAVEP[];
 
 E NEARDATA int bases[MAXOCLASSES];
 
-#ifdef TEXTMODE
-E NEARDATA boolean text_mode;
-#endif
-
 E NEARDATA int multi;
 #if 0
 E NEARDATA int warnlevel;
