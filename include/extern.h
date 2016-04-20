@@ -212,9 +212,6 @@ E void NDECL(do_mapping);
 #ifdef LISTMONS
 E int NDECL(dolistseen);
 #endif
-#ifdef TESTCOM
-E int NDECL(dotestcom);
-#endif
 #ifdef DIRLOOK
 E int FDECL(edgeDistance, (int,int,char*));
 E void NDECL(viewDirs);

@@ -100,9 +100,6 @@ extern int NDECL(doorganize); /**/
 # ifdef LISTMONS
 extern int NDECL(dolistseen); /**/
 # endif
-# ifdef TESTCOM
-extern int NDECL(dotestcom);
-# endif
 # ifdef DIRLOOK
 extern int NDECL(edgeDistance);
 extern void NDECL(viewDirs);
@@ -1502,9 +1499,6 @@ struct ext_func_tab extcmdlist[] = {
     {"history", "show game history", dohistory, TRUE},
 	{"invoke", "invoke an object's powers", doinvoke, TRUE},
 	{"jump", "jump to a location", dojump, FALSE},
-#ifdef TESTCOM
-	{"test", "run a test command", dotestcom, TRUE},
-#endif
 #ifdef DIRLOOK
 	{"dirlook", "look in a direction", dodirlook, TRUE},
 #endif
