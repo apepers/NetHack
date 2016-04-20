@@ -531,7 +531,7 @@ int what;		/* should be a long */
 
 	add_valid_menu_class(0);	/* reset */
 	if (!u.uswallow) {
-		if (text_mode && !autopickup && (flags.menu_style != MENU_TRADITIONAL
+		if (!autopickup && (flags.menu_style != MENU_TRADITIONAL
 				|| iflags.menu_requested)) {
 			objchain = fobj;
 			traverse_how = 0;
@@ -559,10 +559,7 @@ int what;		/* should be a long */
 	    n = autopick(objchain, pickflags, &plist);
 		goto menu_pickup;
 	}
-	if (!text_mode)
-		pickflags |= AUTOSELECT_SINGLE;
-    else
-        pickflags |= LIST_LOCATION;
+    pickflags |= LIST_LOCATION;
 	pickflags |= INVORDER_SORT;
 	if (flags.menu_style != MENU_TRADITIONAL || iflags.menu_requested) {
 	    /* use menus exclusively */
@@ -578,12 +575,12 @@ int what;		/* should be a long */
 	    } else {
 		pickflags |= FEEL_COCKATRICE;
 		n = query_objlist("Pick up what?", objchain, pickflags,
-			&plist, PICK_ANY, text_mode ? can_see : all_but_uchain);
+			&plist, PICK_ANY, can_see);
 	    }
 menu_pickup:
 		plistcount = n;
 		plistcurrent = 0;
-		if (text_mode && !autopickup) {
+		if (!autopickup) {
 			if (plistcount > 0) {
 			set_occupation(pickup_item, "picking up", 0);
 			travel_to_item(plist[0].item.a_obj);
@@ -820,9 +817,11 @@ boolean FDECL((*allow), (OBJ_P));/* allow function */
 		n++;
 	    }
 
-	if (n == 0)	/* nothing to pick here */
-	    return (qflags & SIGNAL_NOMENU) ? -1 : 0;
-
+	if (n == 0) {	/* nothing to pick here */ 
+	    There("is nothing to pick up.");
+        return (qflags & SIGNAL_NOMENU) ? -1 : 0;
+    }
+    
 	if (n == 1 && (qflags & AUTOSELECT_SINGLE)) {
 	    *pick_list = (menu_item *) alloc(sizeof(menu_item));
 	    (*pick_list)->item.a_obj = last;

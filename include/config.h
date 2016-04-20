@@ -348,8 +348,7 @@ typedef unsigned char	uchar;
  * bugs left here.
  */
 
-#define LISTMONS	/* #listmons -extended command */
-#define DIRLOOK		/* Directional look command */
+#define VIACCESSIBILTY	/* Commands adding accessibility for visually impaired players */
 /*#define GOLDOBJ */	/* Gold is kept on obj chains - Helge Hafting */
 /*#define AUTOPICKUP_EXCEPTIONS */ /* exceptions to autopickup */
 

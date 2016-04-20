@@ -209,12 +209,10 @@ E int FDECL(trap_detect, (struct obj *));
 E const char *FDECL(level_distance, (d_level *));
 E void FDECL(use_crystal_ball, (struct obj *));
 E void NDECL(do_mapping);
-#ifdef LISTMONS
+#ifdef VIACCESSIBILTY
 E int NDECL(dolistseen);
-#endif
-#ifdef DIRLOOK
 E int FDECL(edgeDistance, (int,int,char*));
-E void NDECL(viewDirs);
+E int NDECL(viewDirs);
 E int NDECL(dodirlook);
 #endif
 E void NDECL(do_vicinity_map);

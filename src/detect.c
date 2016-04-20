@@ -20,7 +20,7 @@ STATIC_DCL void FDECL(show_map_spot, (int,int));
 STATIC_PTR void FDECL(findone,(int,int,genericptr_t));
 STATIC_PTR void FDECL(openone,(int,int,genericptr_t));
 
-#ifdef DIRLOOK
+#ifdef VIACCESSIBILTY
 
 int edgeDistance(dx, dy, out_str)
 int dx;
@@ -61,7 +61,7 @@ char *out_str;
     return range;
 }
 
-void viewDirs()
+int viewDirs()
 {
     int dx, dy;
     int nrange, srange, wrange, erange;
@@ -78,6 +78,7 @@ void viewDirs()
     wrange = edgeDistance(dx, dy, desc);
     pline("Visible tiles: %d north, %d east, %d south, %d west.", 
             nrange, erange, srange, wrange);
+    return 0;
 }
 
 int dodirlook()
@@ -93,9 +94,6 @@ int dodirlook()
 	pline("%s (%d tiles away.)", out_str, range);
 	return 0;	
 }
-#endif
-
-#ifdef LISTMONS
 
 struct _listseen {
     struct _listseen *next;
@@ -276,7 +274,7 @@ dolistseen()
     free_listseen();
     return 0;
 }
-#endif /*LISTMONS*/
+#endif /*VIACCESSIBILTY*/
 
 /* Recursively search obj for an object in class oclass and return 1st found */
 struct obj *

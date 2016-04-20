@@ -97,12 +97,10 @@ extern int NDECL(dowield); /**/
 extern int NDECL(dowieldquiver); /**/
 extern int NDECL(dozap); /**/
 extern int NDECL(doorganize); /**/
-# ifdef LISTMONS
+# ifdef VIACCESSIBILTY
 extern int NDECL(dolistseen); /**/
-# endif
-# ifdef DIRLOOK
 extern int NDECL(edgeDistance);
-extern void NDECL(viewDirs);
+extern int NDECL(viewDirs);
 extern int NDECL(dodirlook);
 # endif
 #endif /* DUMB */
@@ -1441,7 +1439,7 @@ static const struct func_tab cmdlist[] = {
 /*	'u', 'U' : go ne */
 	{'u', FALSE, dountrap}, /* if number_pad is on */
 	{M('u'), FALSE, dountrap},
-#ifdef LISTMONS
+#ifdef VIACCESSIBILTY
     {'v', TRUE, dolistseen},
     {'V', TRUE, viewDirs},
 #else
@@ -1499,7 +1497,7 @@ struct ext_func_tab extcmdlist[] = {
     {"history", "show game history", dohistory, TRUE},
 	{"invoke", "invoke an object's powers", doinvoke, TRUE},
 	{"jump", "jump to a location", dojump, FALSE},
-#ifdef DIRLOOK
+#ifdef VIACCESSIBILTY
 	{"dirlook", "look in a direction", dodirlook, TRUE},
 #endif
 	{"loot", "loot a box on the floor", doloot, FALSE},

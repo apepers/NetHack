@@ -1399,14 +1399,15 @@ domove()
 
 	if(u.ux0 != u.ux || u.uy0 != u.uy) {
 	    u.umoved = TRUE;
-        // Give vision info if you're in a hallway
-        if (levl[u.ux][u.uy].roomno == 0)
-            viewDirs();
+        
 	    /* Clean old position -- vision_recalc() will print our new one. */
 	    newsym(u.ux0,u.uy0);
 	    /* Since the hero has moved, adjust what can be seen/unseen. */
 	    vision_recalc(1);	/* Do the work now in the recover time. */
 	    invocation_message();
+        // Give vision info if you're in a hallway
+        if (levl[u.ux][u.uy].roomno == 0)
+            viewDirs();
 	}
 
 	if (Punished)				/* put back ball and chain */
@@ -1885,10 +1886,6 @@ dopickup()
 		You("would burn to a crisp trying to pick things up.");
 		return(0);
 	    }
-	}
-	if(!text_mode && !OBJ_AT(u.ux, u.uy)) {
-		There("is nothing here to pick up.");
-		return(0);
 	}
 	if (!can_reach_floor()) {
 #ifdef STEED
