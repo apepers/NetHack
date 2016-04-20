@@ -2,6 +2,8 @@
 /* Copyright (c) Steve Creps, 1988.				  */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Altered by Alexei Pepers, April 2016 */
+
 #ifndef EXTERN_H
 #define EXTERN_H
 

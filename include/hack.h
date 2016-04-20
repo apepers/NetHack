@@ -2,6 +2,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Altered by Alexei Pepers, April 2016 */
+
 #ifndef HACK_H
 #define HACK_H
 

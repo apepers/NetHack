@@ -2,6 +2,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* Altered by Alexei Pepers, April 2016 */
+
 /* This file contains the command routines dowhatis() and dohelp() and */
 /* a few other help related facilities */
 
