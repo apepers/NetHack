@@ -64,8 +64,8 @@ T       Take off one piece of armor
 u       Go northeast 1 space (or if number_pad is on, untrap something)
 U       Go northeast until you are on top of something
 ^U      Go northeast until you are near something
-v       Show version
-V       Show long version and game history
+v       View monsters, objects, and dungeon features around you
+V       Show version
 w       Wield (put in use) a weapon
 W       Wear a piece of armor
 x       Swap wielded and secondary weapons
@@ -105,6 +105,7 @@ M-c     Talk to someone
 M-d     Dip an object into something
 M-e     Advance or check weapons skills
 M-f     Force a lock
+M-h     Show long version and game history
 M-i     Invoke an object's special powers
 M-j     Jump to another location
 M-l     Loot a box on the floor

@@ -157,7 +157,7 @@ show_listseen()
     char buf[BUFSZ], loc[BUFSZ], yloc[BUFSZ], xloc[BUFSZ];
 
     if (seelist.allseen < 1) {
-	You(canseeself() ? "don't see anything." :
+	You(canseeself() ? "don't see anything right now." :
 			   "can't even see yourself.");
 	return;
     }
