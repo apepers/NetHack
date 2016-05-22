@@ -582,16 +582,13 @@ int what;		/* should be a long */
 menu_pickup:
 		plistcount = n;
 		plistcurrent = 0;
+        n_tried = n;
 		if (!autopickup) {
 			if (plistcount > 0) {
 			set_occupation(pickup_item, "picking up", 0);
 			travel_to_item(plist[0].item.a_obj);
-			n_tried = 1;
-			} else {
-			n_tried = 0;
 			}
 		} else {
-	    	n_tried = n;
 	    	for (n_picked = i = 0 ; i < n; i++) {
 			res = pickup_object(plist[i].item.a_obj,plist[i].count,
 					FALSE);
